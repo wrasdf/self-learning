@@ -3,20 +3,26 @@ version: '3.4'
 
 services:
 
-  apache:
+  ui: &ui
     working_dir: /app
-    image: httpd:2.4.41-alpine
-    restart: always
+    build:
+      context: ./ui
+    volumes:
+      - ./ui:/app
+      - /app/node_modules
     depends_on:
+      - api
       - db
       - redis
-      - api
-    volumes:
-      - ./ui/dist:/usr/local/apache2/htdocs/
     ports:
-      - 8081:80
+      - 8082:8082
 
-  api:
+  shui:
+    <<: *ui
+    entrypoint:
+      - sh
+
+  api: &api
     working_dir: /app
     image: httpd:2.4.41-alpine
     restart: always
@@ -26,7 +32,12 @@ services:
     volumes:
       - ./apache/staticfiles:/usr/local/apache2/htdocs/
     ports:
-      - 8081:80
+      - 8081:8081
+
+  shapi:
+    <<: *api
+    entrypoint:
+      - sh
 
   redis:
     working_dir: /app
