@@ -6,7 +6,7 @@
   "scripts": {
     "test": "./node_modules/.bin/mocha ./tests/*.js"
   },
-  "author": "",
+  "author": "wrasdf@gmail.com",
   "license": "ISC",
   "dependencies": {
     "chai": "^4.2.0",

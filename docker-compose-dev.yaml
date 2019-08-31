@@ -1,5 +1,5 @@
 ---
-version: '3.4'
+version: '3.6'
 
 services:
 
@@ -10,12 +10,12 @@ services:
     volumes:
       - ./ui:/app
       - /app/node_modules
-    depends_on:
-      - api
-      - db
-      - redis
     ports:
       - 8082:8082
+    entrypoint:
+      - npm
+      - run
+      - serve
 
   shui:
     <<: *ui
@@ -23,21 +23,26 @@ services:
       - sh
 
   api: &api
-    working_dir: /app
-    image: httpd:2.4.41-alpine
+    working_dir: /go/src/api/
+    build:
+      context: ./api
     restart: always
+    volumes:
+      - ./api:/go/src/api/
     depends_on:
       - db
       - redis
-    volumes:
-      - ./apache/staticfiles:/usr/local/apache2/htdocs/
     ports:
       - 8081:8081
+    entrypoint:
+      - go
+      - run
+      - main.go
 
   shapi:
     <<: *api
     entrypoint:
-      - sh
+      - bash
 
   redis:
     working_dir: /app

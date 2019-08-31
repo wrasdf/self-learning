@@ -1,5 +1,5 @@
 ---
-version: '3.4'
+version: '3.6'
 
 services:
 
@@ -18,15 +18,15 @@ services:
 
   api:
     working_dir: /app
-    image: httpd:2.4.41-alpine
+    build:
+      context: ./api
+      dockerfile: Dockerfile-release
     restart: always
     depends_on:
       - db
       - redis
-    volumes:
-      - ./apache/staticfiles:/usr/local/apache2/htdocs/
     ports:
-      - 8081:80
+      - 8081:8081
 
   redis:
     working_dir: /app

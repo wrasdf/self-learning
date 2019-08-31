@@ -1,5 +1,6 @@
 FROM node:12.9-alpine
 
+WORKDIR /app
 COPY package.json *yarn* /app/
 RUN yarn install
 

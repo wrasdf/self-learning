@@ -1,13 +1,19 @@
-
 ---
-version: '3.4'
-
+version: '3.6'
 services:
 
   ut:
+    build:
+      context: ./ui
+    entrypoint:
+      - npm
+      - run
+      - test
 
-  api:
-
-  contract:
-
-  e2e:
+  apiut:
+    build:
+      context: ./api
+    command:
+      - go
+      - test
+      - main_test.go

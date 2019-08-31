@@ -1,10 +1,8 @@
-This repo is for me to achieve a personal goal in Devops area.
-
-
+Personal Project
 
 ### UI
 Features:
-  - Todo list
+  - Employees (CRUD)
   - Bootstrap with fancy ui support (Mobile & Desktop)
 
 ### API
