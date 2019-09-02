@@ -21,6 +21,7 @@ func main() {
   r := mux.NewRouter()
 
   apiv1 := r.PathPrefix("/api/v1").Subrouter()
+
   apiv1.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]string{"health": "ok"})
 	})
@@ -28,6 +29,7 @@ func main() {
   // r.HandleFunc("/employees", ALLEmployees).Methods("GET")
   // r.HandleFunc("/employees/{id}", GetEmployee).Methods("GET")
   // r.HandleFunc("/employees/{id}", UpdateEmployee).Methods("PUT")
+  // r.HandleFunc("/employees/{id}", UpdateEmployee).Methods("DELETE")
 
   http.Handle("/", r)
 

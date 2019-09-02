@@ -1,5 +1,5 @@
 ---
-version: '3.6'
+version: '3.2'
 services:
 
   ut:
@@ -16,4 +16,4 @@ services:
     command:
       - go
       - test
-      - main_test.go
+      - ./tests

@@ -1,0 +1,16 @@
+version: 2.1
+jobs:
+  build:
+    machine: true
+    steps:
+      - checkout
+
+      - run:
+          name: Unit Test
+          command: |
+            make ut
+
+      - run:
+         name: Api Test
+         command: |
+            make apiut
