@@ -1,9 +1,8 @@
 package employee
 
 type Employee interface {
-	Init()
+	Create()
 	Update()
-  Save()
 }
 
 
