@@ -1,16 +1,57 @@
 version: 2.1
 jobs:
-  build:
+  ut:
     machine: true
     steps:
       - checkout
-
       - run:
           name: Unit Test
           command: |
             make ut
-
+            
+  apiut:
+    machine: true
+    steps:
+      - checkout
       - run:
          name: Api Test
          command: |
             make apiut
+
+  e2e:
+    machine: true
+    steps:
+      - checkout
+      - run:
+         name: E2E Test
+         command: |
+            make e2e
+
+  deploy:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Deploy to Docker Hub
+          command: |
+            echo "Deploy ..... "
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - ut
+      - apiut
+      - e2e:
+          requires:
+            - ut
+            - apiut
+      - hold:
+          type: approval
+          requires:
+            - ut
+            - apiut
+            - e2e
+      - deploy:
+          requires:
+            - hold

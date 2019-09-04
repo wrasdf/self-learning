@@ -23,3 +23,6 @@ shui:
 shapi:
 	docker-compose -f docker-compose-dev.yaml build shapi
 	docker-compose -f docker-compose-dev.yaml run --rm shapi
+
+e2e:
+	echo "TODO: This is E2E test."
