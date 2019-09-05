@@ -1,4 +1,4 @@
-.PHONY: ut apiut shui shapi api ui
+.PHONY: ut apiut shui shapi api ui e2e
 
 ui:
 	docker-compose -f docker-compose-dev.yaml build ui
