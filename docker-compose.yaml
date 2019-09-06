@@ -8,7 +8,7 @@ services:
     image: httpd:2.4.41-alpine
     restart: always
     depends_on:
-      - db
+      - postgres
       - redis
       - api
     volumes:
@@ -45,7 +45,7 @@ services:
     depends_on:
       - postgres
       - redis
-      - adminer
+      - pgweb
     ports:
       - 8080:8080
     entrypoint:
@@ -58,23 +58,48 @@ services:
     entrypoint:
       - bash
 
+  flyway:
+    working_dir: /database
+    image: boxfuse/flyway:5.2.4-alpine
+    depends_on:
+      - postgres
+      - pgweb
+    volumes:
+      - ./database/migrations:/flyway/sql/migrations
+      - ./database/data:/flyway/sql/data
+    environment:
+      - FLYWAY_URL=jdbc:postgresql://postgres:5432/company
+      - FLYWAY_USER=postgres
+      - FLYWAY_PASSWORD=mypassword
+    command:
+      - migrate
+
   redis:
     working_dir: /app
     image: redis:5.0.5-alpine
     restart: always
 
   postgres:
-    image: postgres:11.5-alpine
+    image: postgres:10.9-alpine
     restart: always
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=company
 
-  adminer:
-    image: adminer:4.7.3
+  pgweb:
+    image: sosedoff/pgweb:0.11.3
     restart: always
     ports:
-      - 8084:8080
+      - 8084:8081
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgres://postgres:mypassword@postgres:5432/company?sslmode=disable
 
 volumes:
-    db-data:
+  db-data:

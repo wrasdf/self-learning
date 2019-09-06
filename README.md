@@ -56,7 +56,7 @@ Deploy Pipeline:
     - Contract Test
     - API Test
     - Compile FrontEnd to CloudFront by cfn
-    - Compile Backend to Fargate by cfn
+    - Compile Backend to Fargate | EKS by cfn
     - E2E test (happy pass)
 
   - Production
@@ -64,5 +64,8 @@ Deploy Pipeline:
     - Contract Test
     - API Test
     - Compile FrontEnd to CloudFront by cfn
-    - Compile Backend to Fargate by cfn
+    - Compile Backend to Fargate | EKS by cfn
     - E2E test (happy pass)
+
+
+      # - FLYWAY_LOCATIONS=filesystem:./${dbpath}    
