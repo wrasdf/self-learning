@@ -311,7 +311,6 @@ Resources:
   DNSRecord:
     Type: AWS::Route53::RecordSet
     Properties:
-      HostedZoneId: {{ cluster.hostedZoneId }}
       HostedZoneName: {{ cluster.domainName }}.
       Name: {{ onboarding.name }}.{{ cluster.domainName }}.
       Type: A

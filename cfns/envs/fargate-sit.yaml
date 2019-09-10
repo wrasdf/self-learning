@@ -15,7 +15,6 @@ cluster:
       - subnet-056293408b0b3abee
       - subnet-0a67df2c950971ec0
   domainName: apollo-dev.platform.myobdev.com
-  hostedZoneId: Z18N0T1ZWA0GBQ
 
 ecr:
   repo: "fargate/onboarding"
