@@ -4,3 +4,7 @@
 - https://github.com/labstack/echo
 - https://github.com/golang-migrate/migrate
 - https://github.com/jinzhu/gorm
+- https://github.com/ahl5esoft/golang-underscore
+
+### Bash:
+- `$ uuidgen` -> uuid
