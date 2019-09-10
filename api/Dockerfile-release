@@ -13,5 +13,5 @@ RUN CGO_ENABLED=0 go build -o /api main.go
 FROM scratch AS final
 COPY --from=builder /api /api
 
-EXPOSE 8081
+EXPOSE 8080
 ENTRYPOINT ["/api"]

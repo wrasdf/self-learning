@@ -1,12 +1,4 @@
-.PHONY: ut apiut shui shapi api ui e2e
-
-ui:
-	docker-compose -f docker-compose-dev.yaml build ui
-	docker-compose -f docker-compose-dev.yaml run --rm --service-ports ui
-
-api:
-	docker-compose -f docker-compose-dev.yaml build api
-	docker-compose -f docker-compose-dev.yaml run --rm --service-ports api
+.PHONY: ut apiut shui shapi api ui e2e stop clean
 
 ut:
 	docker-compose -f docker-compose-test.yaml build ut
@@ -16,13 +8,34 @@ apiut:
 	docker-compose -f docker-compose-test.yaml build apiut
 	docker-compose -f docker-compose-test.yaml run --rm apiut
 
+ui:
+	docker-compose build ui
+	docker-compose run --rm --service-ports ui
+
+api:
+	docker-compose build api
+	docker-compose run --rm --service-ports api
+
 shui:
-	docker-compose -f docker-compose-dev.yaml build shui
-	docker-compose -f docker-compose-dev.yaml run --rm shui
+	docker-compose build shui
+	docker-compose run --rm shui
 
 shapi:
-	docker-compose -f docker-compose-dev.yaml build shapi
-	docker-compose -f docker-compose-dev.yaml run --rm shapi
+	docker-compose build shapi
+	docker-compose run --rm shapi
+
+clean:
+	docker stop $(shell docker ps -aq) && docker rm $(shell docker ps -aq)
+	# docker volume rm $(docker volume ls -f driver=local | awk '{print $2}' | tail -n+2)
+
+migrate:
+	docker-compose build flyway
+	docker-compose run --rm flyway
+
+apply-fargate:
+	docker-compose run --rm ctpl validate -p cfns/envs/fargate-sit.yaml -c fargate
+	docker-compose run --rm ctpl apply -p cfns/envs/fargate-sit.yaml -c fargate	
+
 
 e2e:
 	echo "TODO: This is E2E test."

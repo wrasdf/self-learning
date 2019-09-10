@@ -17,3 +17,8 @@ services:
       - go
       - test
       - ./tests
+      
+  api:
+    image: 850603229734.dkr.ecr.ap-southeast-2.amazonaws.com/fargate/onboarding:v0.1.1
+    ports:
+      - 8080:8080

@@ -1,0 +1,29 @@
+---
+cluster:
+  name: apollo-sit
+  region: ap-southeast-2
+  vpc: vpc-06848ae49be4090cb
+  logGroup: /apollo-sit/fargate
+  subnets:
+    publics:
+      - subnet-00198a705a6aa2a18
+      - subnet-0bb5d3526b08b0fc1
+      - subnet-0a67df2c950971ec0
+    privates:
+      - subnet-0a634daffd9ddc7cd
+      - subnet-056293408b0b3abee
+      - subnet-0a67df2c950971ec0
+  domainName: apollo-dev.platform.myobdev.com
+
+ecr:
+  repo: "fargate/onboarding"
+
+onboarding:
+  name: onboarding
+  version: v0.1.1
+  image: 850603229734.dkr.ecr.ap-southeast-2.amazonaws.com/fargate/onboarding
+  containerPort: 8080
+  bucketName: fargate-onboarding
+  logGroup: /ecs/fargate/onboarding/logs
+  minContainers: 2
+  maxContainers: 5
