@@ -15,12 +15,8 @@ Resources:
 
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
-    DependsOn:
-      - LogGroup
-      - ExecutionRole
-      - TaskRole
     Properties:
-      Family: !Sub ${AWS::StackName}-{{ onboarding.name }}
+      Family: {{ cluster.name }}-{{ onboarding.name }}
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
@@ -64,24 +60,6 @@ Resources:
             Action: 'sts:AssumeRole'
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
-      Policies:
-        - PolicyName: AmazonECSTaskExecutionRolePolicy
-          PolicyDocument:
-            Statement:
-              - Effect: Allow
-                Action:
-                  - 'ecr:GetAuthorizationToken'
-                  - 'ecr:BatchCheckLayerAvailability'
-                  - 'ecr:GetDownloadUrlForLayer'
-                  - 'ecr:BatchGetImage'
-                Resource: '*'
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                  - logs:Describe*
-                Resource:
-                  - !GetAtt 'LogGroup.Arn'
 
   # A role for the containers
   TaskRole:
@@ -296,9 +274,9 @@ Resources:
       Namespace: 'AWS/ECS'
       Dimensions:
       - Name: ClusterName
-        Value: !GetAtt 'Cluster.Name'
+        Value: {{ cluster.name }}
       - Name: ServiceName
-        Value: !GetAtt 'Service.Name'
+        Value: {{ onboarding.name }}
       MetricName: CPUUtilization
       ComparisonOperator: GreaterThanThreshold
       Statistic: Average
@@ -318,9 +296,9 @@ Resources:
       Namespace: 'AWS/ECS'
       Dimensions:
       - Name: ClusterName
-        Value: !GetAtt 'Cluster.Name'
+        Value: {{ cluster.name }}
       - Name: ServiceName
-        Value: !GetAtt 'Service.Name'
+        Value: {{ onboarding.name }}
       MetricName: CPUUtilization
       ComparisonOperator: LessThanThreshold
       Statistic: Average
@@ -333,12 +311,13 @@ Resources:
   DNSRecord:
     Type: AWS::Route53::RecordSet
     Properties:
+      HostedZoneId: {{ cluster.hostedZoneId }}
       HostedZoneName: {{ cluster.domainName }}.
       Name: {{ onboarding.name }}.{{ cluster.domainName }}.
       Type: A
       AliasTarget:
-        DNSName: !GetAtt LoadBalancer.DNSName
-        HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
+        DNSName: !GetAtt 'LoadBalancer.DNSName'
+        HostedZoneId: !GetAtt 'LoadBalancer.CanonicalHostedZoneID'
 
 Outputs:
   Endpoint:
