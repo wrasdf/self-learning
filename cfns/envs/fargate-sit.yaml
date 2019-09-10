@@ -3,7 +3,8 @@ cluster:
   name: apollo-sit
   region: ap-southeast-2
   vpc: vpc-06848ae49be4090cb
-  logGroup: /apollo-sit/fargate
+  logGroup: /ecs/apollo-sit/fargate
+  logsRetentionInDays: 3
   subnets:
     publics:
       - subnet-00198a705a6aa2a18
@@ -24,6 +25,6 @@ onboarding:
   image: 850603229734.dkr.ecr.ap-southeast-2.amazonaws.com/fargate/onboarding
   containerPort: 8080
   bucketName: fargate-onboarding
-  logGroup: /ecs/fargate/onboarding/logs
+  logGroup: apollo-sit/fargate/
   minContainers: 2
   maxContainers: 5

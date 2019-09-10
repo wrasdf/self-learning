@@ -11,6 +11,7 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: {{{ cluster.logGroup }}}
+      RetentionInDays: {{{ cluster.logsRetentionInDays }}}
 
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
@@ -132,8 +133,8 @@ Resources:
       VpcId: {{ cluster.vpc }}
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: 0
-          ToPort: 65535
+          FromPort: {{ onboarding.containerPort }}
+          ToPort: {{ onboarding.containerPort }}
           SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
 
   LoadBalancerSecurityGroup:
@@ -285,6 +286,50 @@ Resources:
         - MetricIntervalUpperBound: 0
           ScalingAdjustment: -25
 
+  CPUUtilizationHighAlarm:
+    Type: 'AWS::CloudWatch::Alarm'
+    DependsOn:
+      - Cluster
+      - Service
+    Properties:
+      AlarmDescription: 'Service is running out of CPU'
+      Namespace: 'AWS/ECS'
+      Dimensions:
+      - Name: ClusterName
+        Value: !GetAtt 'Cluster.Name'
+      - Name: ServiceName
+        Value: !GetAtt 'Service.Name'
+      MetricName: CPUUtilization
+      ComparisonOperator: GreaterThanThreshold
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 80
+      AlarmActions:
+      - !Ref ScaleUpPolicy
+
+  CPUUtilizationLowAlarm:
+    Type: 'AWS::CloudWatch::Alarm'
+    DependsOn:
+      - Cluster
+      - Service
+    Properties:
+      AlarmDescription: 'Service is wasting CPU'
+      Namespace: 'AWS/ECS'
+      Dimensions:
+      - Name: ClusterName
+        Value: !GetAtt 'Cluster.Name'
+      - Name: ServiceName
+        Value: !GetAtt 'Service.Name'
+      MetricName: CPUUtilization
+      ComparisonOperator: LessThanThreshold
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 3
+      Threshold: 30
+      AlarmActions:
+      - !Ref ScaleDownPolicy
+
   DNSRecord:
     Type: AWS::Route53::RecordSet
     Properties:
@@ -294,20 +339,6 @@ Resources:
       AliasTarget:
         DNSName: !GetAtt LoadBalancer.DNSName
         HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
-
-  # AutoScalingPolicy:
-  #   Type: AWS::ApplicationAutoScaling::ScalingPolicy
-  #   Properties:
-  #     PolicyName: {{ onboarding.name }}-AutoScalingPolicy
-  #     PolicyType: TargetTrackingScaling
-  #     ScalingTargetId: !Ref AutoScalingTarget
-  #     TargetTrackingScalingPolicyConfiguration:
-  #       PredefinedMetricSpecification:
-  #         PredefinedMetricType: ECSServiceAverageCPUUtilization
-  #       ScaleInCooldown: 10
-  #       ScaleOutCooldown: 10
-  #       # Keep things at or lower than 50% CPU utilization, for example
-  #       TargetValue: 30
 
 Outputs:
   Endpoint:
