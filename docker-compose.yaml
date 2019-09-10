@@ -39,7 +39,6 @@ services:
     working_dir: /go/src/api/
     build:
       context: ./api
-    restart: always
     volumes:
       - ./api:/go/src/api/
     depends_on:
@@ -57,6 +56,13 @@ services:
     <<: *api
     entrypoint:
       - bash
+
+  ctpl:
+    image: ikerry/ctpl:v0.1.5
+    working_dir: /app
+    volumes:
+      - .:/app
+      - "$HOME/.aws:/root/.aws"
 
   flyway:
     working_dir: /database

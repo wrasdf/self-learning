@@ -26,11 +26,16 @@ shapi:
 
 clean:
 	docker stop $(shell docker ps -aq) && docker rm $(shell docker ps -aq)
-	docker volume rm $(docker volume ls -f driver=local | awk '{print $2}' | tail -n+2)
+	# docker volume rm $(docker volume ls -f driver=local | awk '{print $2}' | tail -n+2)
 
 migrate:
 	docker-compose build flyway
 	docker-compose run --rm flyway
+
+apply-fargate:
+	docker-compose run --rm ctpl validate -p cfns/envs/fargate-sit.yaml -c fargate
+	docker-compose run --rm ctpl apply -p cfns/envs/fargate-sit.yaml -c fargate	
+
 
 e2e:
 	echo "TODO: This is E2E test."
