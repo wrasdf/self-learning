@@ -1,5 +1,10 @@
 Personal Project [![CircleCI](https://circleci.com/gh/wrasdf/self-learning/tree/master.svg?style=svg)](https://circleci.com/gh/wrasdf/self-learning/tree/master)
 
+### Deployment
+Features:
+  - UI -> CloudFront by CFN
+  - API -> Fargate by CFN
+
 ### UI
 Features:
   - Employees (CRUD)
@@ -12,12 +17,24 @@ Features:
     - Redis as a cache layer
     - Structured logic layers
 
-### TODO Checkpoints:
-ENV Supports:
-  - Local
-  - Sit
-  - production
+### Deploy Pipeline:
+  - branch
+    - Unit Test
+    - Contract Test ?
+    - API Test
+    - docker-compose E2E test
 
+  - Sit
+    - Unit Test
+    - Contract Test
+    - API Test
+    - deploy FrontEnd to CloudFront by cfn
+    - deploy Backend to Fargate | EKS by cfn
+    - E2E test (happy pass)
+
+  - Production ?
+
+### Checkpoints:
 Features:
   - Local
     - Easy to Tests
@@ -33,39 +50,5 @@ Features:
     - Zero downtime
     - DR plan
 
-  - Production
-    - Test Passed
-    - Easy to deploy
-    - Log will be in cloudwatch
+  - Production ?
     - audit log ?
-    - Metrics
-    - TLS
-    - Zero downtime
-    - DR plan
-
-
-Deploy Pipeline:
-  - branch
-    - Unit Test
-    - Contract Test
-    - API Test
-    - docker-compose E2E test
-
-  - Sit  
-    - Unit Test
-    - Contract Test
-    - API Test
-    - Compile FrontEnd to CloudFront by cfn
-    - Compile Backend to Fargate | EKS by cfn
-    - E2E test (happy pass)
-
-  - Production
-    - Unit Test
-    - Contract Test
-    - API Test
-    - Compile FrontEnd to CloudFront by cfn
-    - Compile Backend to Fargate | EKS by cfn
-    - E2E test (happy pass)
-
-
-      # - FLYWAY_LOCATIONS=filesystem:./${dbpath}    
