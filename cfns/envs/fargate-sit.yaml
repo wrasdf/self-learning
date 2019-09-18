@@ -14,17 +14,31 @@ cluster:
       - subnet-0a634daffd9ddc7cd
       - subnet-056293408b0b3abee
       - subnet-0a67df2c950971ec0
+    dbs:
+      - subnet-0b7e99ee48890c5ac
+      - subnet-04a822bcd40d7b183
+      - subnet-00eb08bcaac268526
   domainName: apollo-dev.platform.myobdev.com
+  sns: arn:aws:sns:ap-southeast-2:850603229734:apollo-sit-alarm
 
 ecr:
   repo: "fargate/onboarding"
 
+db:
+  name: employee-sit
+  storageSize: 10
+  backupRetentionPeriod: 35
+  type: db.t2.micro
+  version: '10.9'
+  multiAZ: false
+  clientSecurityGroup: "sg-09221d351235d3ef3"
+
 onboarding:
-  name: onboarding
+  name: api
   version: v0.1.1
   image: 850603229734.dkr.ecr.ap-southeast-2.amazonaws.com/fargate/onboarding
   containerPort: 8080
   bucketName: fargate-onboarding
   logGroup: apollo-sit/fargate/
-  minContainers: 2
+  minContainers: 1
   maxContainers: 5
