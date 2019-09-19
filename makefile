@@ -40,7 +40,7 @@ apply-%:
 
 update-ui-%:
 	$(DCR) aws s3 cp ./ui/ s3://employee.apollo-dev.platform.myobdev.com/ --recursive
-	$(DCR) aws cloudfront create-invalidation --distribution-id EZYDXUK3CCPZH --paths /index.html /error.html
+	$(DCR) aws cloudfront create-invalidation --distribution-id EN5K6IJ2PYRK0 --paths /index.html /error.html
 
 eks:
 	$(DCR) stackup aws-eks-lab-stack up -t eks/template.yaml -p eks/lab.yaml

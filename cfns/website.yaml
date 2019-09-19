@@ -20,12 +20,23 @@ Resources:
     Properties:
       BucketName: {{ website.domainName }}
       AccessControl: Private
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: True
+        BlockPublicPolicy: True
+        IgnorePublicAcls: True
+        RestrictPublicBuckets: True
       VersioningConfiguration:
         Status: Enabled
       CorsConfiguration:
         CorsRules:
-          - AllowedMethods:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - HEAD
               - GET
+              - PUT
+              - POST
+              - DELETE
             AllowedOrigins:
               - "*"
             MaxAge: "3000"
