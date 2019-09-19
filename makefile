@@ -30,8 +30,6 @@ clean:
 	docker stop $(shell docker ps -aq) && docker rm $(shell docker ps -aq)
 	# docker volume rm $(docker volume ls -f driver=local | awk '{print $2}' | tail -n+2)
 
-
-
 db-migrate:
 	docker-compose build flyway
 	docker-compose run --rm flyway
@@ -39,7 +37,6 @@ db-migrate:
 apply-api-%:
 	$(DCR) ctpl validate -p cfns/envs/$(component)-$(*).yaml -c $(component)
 	$(DCR) ctpl apply -p cfns/envs/$(component)-$(*).yaml -c $(component)
-	# $(DCR) ctpl delete -p cfns/envs/$(component)-$(*).yaml -c $(component)
 
 apply-ui-%:
 	$(DCR) ctpl validate -p cfns/envs/$(component)-$(*).yaml -c $(component)
@@ -47,7 +44,7 @@ apply-ui-%:
 
 update-ui-%:
 	$(DCR) aws s3 cp ./ui/ s3://employee.apollo-dev.platform.myobdev.com/ --recursive
-	# $(DCR) aws cloudfront create-invalidation --distribution-id E30WQXHV4J8OB2 --paths /index.html /error.html
+	$(DCR) aws cloudfront create-invalidation --distribution-id EZYDXUK3CCPZH --paths /index.html /error.html
 
 eks:
 	$(DCR) stackup aws-eks-lab-stack up -t eks/template.yaml -p eks/lab.yaml

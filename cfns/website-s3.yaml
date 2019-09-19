@@ -1,0 +1,131 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: cloudfront with private s3 bucket
+Parameters:
+
+  PriceClass:
+    Type: String
+    Description: Distribution price class. PriceClass_All is worldwide but more expensive.
+    Default: 'PriceClass_All'
+    AllowedValues:
+      - 'PriceClass_100'
+      - 'PriceClass_200'
+      - 'PriceClass_All'
+
+Resources:
+
+  WebsiteBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: {{ onboarding.domainName }}
+      AccessControl: Private
+      VersioningConfiguration:
+        Status: Enabled
+
+  WebsiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref WebsiteBucket
+      PolicyDocument:
+        Statement:
+          - Sid: AccessPermissionToCloudFront
+            Principal:
+              CanonicalUser: !GetAtt CloudFrontOriginAccessIdentity.S3CanonicalUserId
+            Action: 's3:GetObject'
+            Effect: Allow
+            Resource: !Sub "arn:aws:s3:::${WebsiteBucket}/*"
+          - Effect: Allow
+            Action:
+              - s3:*
+            Principal:
+              AWS: !Ref "AWS::AccountId"
+            Resource:
+              - !Sub "arn:aws:s3:::${WebsiteBucket}/*"
+              - !Sub "arn:aws:s3:::${WebsiteBucket}"
+
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: 'OAI CloudFront for {{ onboarding.domainName }}'
+
+  WebsiteCloudfront:
+    Type: AWS::CloudFront::Distribution
+    DependsOn:
+      - WebsiteBucket
+      - CloudFrontOriginAccessIdentity
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Aliases:
+          - {{ onboarding.domainName }}
+        Origins:
+          - Id: S3OriginWebsite
+            DomainName: {{ onboarding.domainName }}.s3.amazonaws.com
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}"
+        HttpVersion: 'http2'
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          Compress: true
+          TargetOriginId: S3OriginWebsite
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+              Forward: all
+          ViewerProtocolPolicy: allow-all
+          AllowedMethods:
+            - HEAD
+            - DELETE
+            - POST
+            - GET
+            - PUT
+            - PATCH
+            - OPTIONS
+          CachedMethods:
+            - HEAD
+            - GET
+          Compress: true
+          DefaultTTL: 300
+          MinTTL: 60
+        Restrictions:
+          GeoRestriction:
+            Locations:
+              - AU
+              - NZ
+            RestrictionType: whitelist
+        CustomErrorResponses:
+          - ErrorCachingMinTTL: 30
+            ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /error.html
+        PriceClass: !Ref PriceClass
+        ViewerCertificate:
+          AcmCertificateArn: {{{ onboarding.acmCertificateArn }}}
+          MinimumProtocolVersion: TLSv1
+          SslSupportMethod: sni-only
+      Tags:
+        - Key: Domain
+          Value: {{ onboarding.domainName }}
+
+  # WebsiteDNSName:
+  #   Type: AWS::Route53::RecordSetGroup
+  #   Properties:
+  #     HostedZoneId: {{ onboarding.hostedZoneId }}
+  #     RecordSets:
+  #       - Name: "{{ onboarding.domainName }}"
+  #         Type: A
+  #         AliasTarget:
+  #           DNSName: !GetAtt WebsiteCloudfront.DomainName
+
+Outputs:
+  BucketName:
+    Value: !Ref 'WebsiteBucket'
+    Description: Name of S3 bucket to hold website content
+  FullDomain:
+    Value: {{ onboarding.domainName }}
+    Description: Full DomainName
+  CloudfrontEndpoint:
+    Value: !GetAtt WebsiteCloudfront.DomainName
+    Description: Endpoint for Cloudfront distribution
