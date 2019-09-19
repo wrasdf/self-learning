@@ -38,6 +38,7 @@ onboarding:
   version: v0.1.1
   image: 850603229734.dkr.ecr.ap-southeast-2.amazonaws.com/fargate/onboarding
   containerPort: 8080
+  acmCertificateArn: 	arn:aws:acm:ap-southeast-2:850603229734:certificate/51b63840-2e76-420c-a7fd-f4c6d91017bb
   bucketName: fargate-onboarding
   logGroup: apollo-sit/fargate/
   minContainers: 1

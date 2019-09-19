@@ -142,7 +142,8 @@ Resources:
   Service:
     Type: AWS::ECS::Service
     DependsOn:
-      - ListenerHTTP
+      - HttpListener
+      - HttpsListener
     Properties:
       ServiceName: {{ onboarding.name }}
       Cluster: !Ref Cluster
@@ -183,27 +184,30 @@ Resources:
       TargetType: ip
       VpcId: {{ cluster.vpc }}
 
-  ListenerHTTP:
-    Type: AWS::ElasticLoadBalancingV2::Listener
+  HttpListener:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
     Properties:
       DefaultActions:
-        - TargetGroupArn: !Ref TargetGroup
-          Type: forward
+        - Type: redirect
+          RedirectConfig:
+            Port: '443'
+            Protocol: HTTPS
+            StatusCode: 'HTTP_301'
       LoadBalancerArn: !Ref LoadBalancer
       Port: 80
       Protocol: HTTP
 
-  # ListenerHTTPS:
-  #   Type: AWS::ElasticLoadBalancingV2::Listener
-  #   Properties:
-  #     DefaultActions:
-  #       - TargetGroupArn: !Ref TargetGroup
-  #         Type: forward
-  #     LoadBalancerArn: !Ref LoadBalancer
-  #     Port: 443
-  #     Protocol: HTTP
-  #     Certificates:
-  #       - CertificateArn: !Ref Certificate
+  HttpsListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Certificates:
+        - CertificateArn: {{{ onboarding.acmCertificateArn }}}
+      DefaultActions:
+        - TargetGroupArn: !Ref TargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 443
+      Protocol: HTTPS
 
   LoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -321,4 +325,4 @@ Resources:
 Outputs:
   Endpoint:
     Description: Endpoint
-    Value: !Join ['', ['http://', !Ref DNSRecord]]
+    Value: !Join ['', ['https://', !Ref DNSRecord]]
