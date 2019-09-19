@@ -1,0 +1,14 @@
+---
+KeyPairName: kube-eks
+RemoteAccessCIDR: 203.34.100.2/32
+NodeInstanceType: t3.medium
+VPCID: vpc-06848ae49be4090cb
+PublicSubnet1ID: subnet-00198a705a6aa2a18
+PublicSubnet2ID: subnet-0bb5d3526b08b0fc1
+PublicSubnet3ID: subnet-0a67df2c950971ec0
+PrivateSubnet1ID: subnet-0a634daffd9ddc7cd
+PrivateSubnet2ID: subnet-056293408b0b3abee
+PrivateSubnet3ID: subnet-0e626530f9d2bb101
+NodeGroupName: kube-eks-nodegroup
+ClusterAutoScaler: Enabled
+EfsStorageClass: Enabled
