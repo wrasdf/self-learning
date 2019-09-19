@@ -16,7 +16,7 @@ Resources:
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: {{ cluster.name }}-{{ onboarding.name }}
+      Family: {{ cluster.name }}-{{ fargate.name }}
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
@@ -35,10 +35,10 @@ Resources:
       ExecutionRoleArn: !GetAtt 'ExecutionRole.Arn'
       TaskRoleArn: !GetAtt 'TaskRole.Arn'
       ContainerDefinitions:
-        - Name: {{{ onboarding.name }}}
-          Image: {{{ onboarding.image }}}:{{{ onboarding.version }}}
+        - Name: {{{ fargate.name }}}
+          Image: {{{ fargate.image }}}:{{{ fargate.version }}}
           PortMappings:
-            - ContainerPort: {{{ onboarding.containerPort }}}
+            - ContainerPort: {{{ fargate.containerPort }}}
           # Send logs to CloudWatch Logs
           LogConfiguration:
             LogDriver: awslogs
@@ -51,7 +51,7 @@ Resources:
   ExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: {{ cluster.name }}-{{ onboarding.name }}-ExecutionRole
+      RoleName: {{ cluster.name }}-{{ fargate.name }}-ExecutionRole
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
@@ -65,7 +65,7 @@ Resources:
   TaskRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: {{ onboarding.name }}-TaskRole
+      RoleName: {{ fargate.name }}-TaskRole
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
@@ -73,7 +73,7 @@ Resources:
               Service: ecs-tasks.amazonaws.com
             Action: 'sts:AssumeRole'
       Policies:
-        - PolicyName: {{ onboarding.name }}-pod-policy
+        - PolicyName: {{ fargate.name }}-pod-policy
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
@@ -81,8 +81,8 @@ Resources:
               Action:
                 - s3:*
               Resource:
-                - arn:aws:s3:::{{ onboarding.bucketName }}/*
-                - arn:aws:s3:::{{ onboarding.bucketName }}
+                - arn:aws:s3:::{{ fargate.bucketName }}/*
+                - arn:aws:s3:::{{ fargate.bucketName }}
             - Effect: Allow
               Action:
                 - logs:CreateLogStream
@@ -94,7 +94,7 @@ Resources:
   AutoScalingRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: {{ onboarding.name }}-AutoScalingRole
+      RoleName: {{ fargate.name }}-AutoScalingRole
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
@@ -107,18 +107,18 @@ Resources:
   ServiceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: {{ onboarding.name }}-ServiceSecurityGroup
+      GroupDescription: {{ fargate.name }}-ServiceSecurityGroup
       VpcId: {{ cluster.vpc }}
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: {{ onboarding.containerPort }}
-          ToPort: {{ onboarding.containerPort }}
+          FromPort: {{ fargate.containerPort }}
+          ToPort: {{ fargate.containerPort }}
           SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
 
   LoadBalancerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: {{ onboarding.name }}-LoadBalancerSecurityGroup
+      GroupDescription: {{ fargate.name }}-LoadBalancerSecurityGroup
       VpcId: {{ cluster.vpc }}
 
   LoadBalancerSecurityGroupInHttpFromWorld:
@@ -145,13 +145,13 @@ Resources:
       - HttpListener
       - HttpsListener
     Properties:
-      ServiceName: {{ onboarding.name }}
+      ServiceName: {{ fargate.name }}
       Cluster: !Ref Cluster
       TaskDefinition: !Ref TaskDefinition
       DeploymentConfiguration:
         MinimumHealthyPercent: 100
         MaximumPercent: 200
-      DesiredCount: {{ onboarding.minContainers }}
+      DesiredCount: {{ fargate.minContainers }}
       HealthCheckGracePeriodSeconds: 10
       LaunchType: FARGATE
       NetworkConfiguration:
@@ -164,8 +164,8 @@ Resources:
           SecurityGroups:
             - !Ref ServiceSecurityGroup
       LoadBalancers:
-        - ContainerName: {{ onboarding.name }}
-          ContainerPort: {{ onboarding.containerPort }}
+        - ContainerName: {{ fargate.name }}
+          ContainerPort: {{ fargate.containerPort }}
           TargetGroupArn: !Ref TargetGroup
 
   TargetGroup:
@@ -176,7 +176,7 @@ Resources:
       HealthCheckTimeoutSeconds: 5
       UnhealthyThresholdCount: 5
       HealthyThresholdCount: 5
-      Port: {{ onboarding.containerPort }}
+      Port: {{ fargate.containerPort }}
       Protocol: HTTP
       TargetGroupAttributes:
         - Key: deregistration_delay.timeout_seconds
@@ -201,7 +201,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       Certificates:
-        - CertificateArn: {{{ onboarding.acmCertificateArn }}}
+        - CertificateArn: {{{ fargate.acmCertificateArn }}}
       DefaultActions:
         - TargetGroupArn: !Ref TargetGroup
           Type: forward
@@ -218,7 +218,7 @@ Resources:
           Value: 60
         - Key: 'routing.http2.enabled'
           Value: 'true'
-      Name: {{ onboarding.name }}-LoadBalancer
+      Name: {{ fargate.name }}-LoadBalancer
       Scheme: internet-facing
       SecurityGroups:
         - !Ref LoadBalancerSecurityGroup
@@ -233,9 +233,9 @@ Resources:
       - Cluster
       - Service
     Properties:
-      MinCapacity: {{ onboarding.minContainers }}
-      MaxCapacity: {{ onboarding.maxContainers }}
-      ResourceId: 'service/{{ cluster.name }}/{{ onboarding.name }}'
+      MinCapacity: {{ fargate.minContainers }}
+      MaxCapacity: {{ fargate.maxContainers }}
+      ResourceId: 'service/{{ cluster.name }}/{{ fargate.name }}'
       ScalableDimension: ecs:service:DesiredCount
       ServiceNamespace: ecs
       RoleARN: !GetAtt AutoScalingRole.Arn
@@ -243,7 +243,7 @@ Resources:
   ScaleUpPolicy:
     Type: 'AWS::ApplicationAutoScaling::ScalingPolicy'
     Properties:
-      PolicyName: {{ cluster.name }}-{{ onboarding.name }}-scale-up
+      PolicyName: {{ cluster.name }}-{{ fargate.name }}-scale-up
       PolicyType: StepScaling
       ScalingTargetId: !Ref AutoScalingTarget
       StepScalingPolicyConfiguration:
@@ -257,7 +257,7 @@ Resources:
   ScaleDownPolicy:
     Type: 'AWS::ApplicationAutoScaling::ScalingPolicy'
     Properties:
-      PolicyName: {{ cluster.name }}-{{ onboarding.name }}-scale-down
+      PolicyName: {{ cluster.name }}-{{ fargate.name }}-scale-down
       PolicyType: StepScaling
       ScalingTargetId: !Ref AutoScalingTarget
       StepScalingPolicyConfiguration:
@@ -280,7 +280,7 @@ Resources:
       - Name: ClusterName
         Value: {{ cluster.name }}
       - Name: ServiceName
-        Value: {{ onboarding.name }}
+        Value: {{ fargate.name }}
       MetricName: CPUUtilization
       ComparisonOperator: GreaterThanThreshold
       Statistic: Average
@@ -302,7 +302,7 @@ Resources:
       - Name: ClusterName
         Value: {{ cluster.name }}
       - Name: ServiceName
-        Value: {{ onboarding.name }}
+        Value: {{ fargate.name }}
       MetricName: CPUUtilization
       ComparisonOperator: LessThanThreshold
       Statistic: Average
@@ -316,7 +316,7 @@ Resources:
     Type: AWS::Route53::RecordSet
     Properties:
       HostedZoneName: {{ cluster.domainName }}.
-      Name: {{ onboarding.name }}.{{ cluster.domainName }}.
+      Name: {{ fargate.name }}.{{ cluster.domainName }}.
       Type: A
       AliasTarget:
         DNSName: !GetAtt 'LoadBalancer.DNSName'

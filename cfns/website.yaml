@@ -18,7 +18,7 @@ Resources:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete
     Properties:
-      BucketName: {{ onboarding.domainName }}
+      BucketName: {{ website.domainName }}
       AccessControl: Private
       VersioningConfiguration:
         Status: Enabled
@@ -55,7 +55,7 @@ Resources:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties:
       CloudFrontOriginAccessIdentityConfig:
-        Comment: 'OAI CloudFront for {{ onboarding.domainName }}'
+        Comment: 'OAI CloudFront for {{ website.domainName }}'
 
   WebsiteCloudfront:
     Type: AWS::CloudFront::Distribution
@@ -66,10 +66,10 @@ Resources:
       DistributionConfig:
         Enabled: true
         Aliases:
-          - {{ onboarding.domainName }}
+          - {{ website.domainName }}
         Origins:
           - Id: S3OriginWebsite
-            DomainName: {{ onboarding.domainName }}.s3.amazonaws.com
+            DomainName: {{ website.domainName }}.s3.amazonaws.com
             S3OriginConfig:
               OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}"
         HttpVersion: 'http2'
@@ -113,19 +113,19 @@ Resources:
             ResponsePagePath: /error.html
         PriceClass: !Ref PriceClass
         ViewerCertificate:
-          AcmCertificateArn: {{{ onboarding.acmCertificateArn }}}
+          AcmCertificateArn: {{{ website.acmCertificateArn }}}
           MinimumProtocolVersion: TLSv1
           SslSupportMethod: sni-only
       Tags:
         - Key: Domain
-          Value: {{ onboarding.domainName }}
+          Value: {{ website.domainName }}
 
   WebsiteDNSName:
     Type: AWS::Route53::RecordSetGroup
     Properties:
-      HostedZoneId: {{ onboarding.hostedZoneId }}
+      HostedZoneId: {{ website.hostedZoneId }}
       RecordSets:
-        - Name: {{ onboarding.domainName }}
+        - Name: {{ website.domainName }}
           Type: A
           AliasTarget:
             HostedZoneId: Z2FDTNDATAQYW2
@@ -136,7 +136,7 @@ Outputs:
     Value: !Ref 'WebsiteBucket'
     Description: Name of S3 bucket to hold website content
   FullDomain:
-    Value: {{ onboarding.domainName }}
+    Value: {{ website.domainName }}
     Description: Full DomainName
   CloudfrontEndpoint:
     Value: !GetAtt WebsiteCloudfront.DomainName

@@ -2,8 +2,8 @@ Personal Project [![CircleCI](https://circleci.com/gh/wrasdf/self-learning/tree/
 
 ### Deployment
 Features:
-  - UI -> CloudFront by CFN
-  - API -> Fargate by CFN
+  - UI -> CloudFront + s3 by CFN ✔
+  - API -> Fargate by CFN ✔
 
 ### UI
 Features:

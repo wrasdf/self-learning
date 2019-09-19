@@ -24,7 +24,7 @@ cluster:
 ecr:
   repo: "fargate/onboarding"
 
-db:
+postgres:
   name: employee-sit
   storageSize: 10
   backupRetentionPeriod: 35
@@ -33,7 +33,7 @@ db:
   multiAZ: false
   clientSecurityGroup: "sg-09221d351235d3ef3"
 
-onboarding:
+fargate:
   name: api
   version: v0.1.1
   image: 850603229734.dkr.ecr.ap-southeast-2.amazonaws.com/fargate/onboarding
@@ -43,3 +43,8 @@ onboarding:
   logGroup: apollo-sit/fargate/
   minContainers: 1
   maxContainers: 5
+
+website:
+  domainName: employee.apollo-dev.platform.myobdev.com
+  hostedZoneId: Z18N0T1ZWA0GBQ
+  acmCertificateArn: arn:aws:acm:us-east-1:850603229734:certificate/04bdc341-b068-4529-b8a9-91590f35b1ba

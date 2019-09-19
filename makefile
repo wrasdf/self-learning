@@ -34,13 +34,9 @@ db-migrate:
 	docker-compose build flyway
 	docker-compose run --rm flyway
 
-apply-api-%:
-	$(DCR) ctpl validate -p cfns/envs/$(component)-$(*).yaml -c $(component)
-	$(DCR) ctpl apply -p cfns/envs/$(component)-$(*).yaml -c $(component)
-
-apply-ui-%:
-	$(DCR) ctpl validate -p cfns/envs/$(component)-$(*).yaml -c $(component)
-	$(DCR) ctpl apply -p cfns/envs/$(component)-$(*).yaml -c $(component)
+apply-%:
+	$(DCR) ctpl validate -p cfns/envs/$(env).yaml -c $(*)
+	$(DCR) ctpl apply -p cfns/envs/$(env).yaml -c $(*)
 
 update-ui-%:
 	$(DCR) aws s3 cp ./ui/ s3://employee.apollo-dev.platform.myobdev.com/ --recursive

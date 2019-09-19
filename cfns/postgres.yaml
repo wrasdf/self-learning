@@ -19,7 +19,7 @@ Resources:
       - IpProtocol: tcp
         FromPort: 5432
         ToPort: 5432
-        SourceSecurityGroupId: {{ db.clientSecurityGroup }}
+        SourceSecurityGroupId: {{ postgres.clientSecurityGroup }}
 
   DBSubnetGroup:
     Type: 'AWS::RDS::DBSubnetGroup'
@@ -35,19 +35,19 @@ Resources:
     UpdateReplacePolicy: Snapshot
     Type: 'AWS::RDS::DBInstance'
     Properties:
-      AllocatedStorage: {{ db.storageSize }}
+      AllocatedStorage: {{ postgres.storageSize }}
       AllowMajorVersionUpgrade: false
       AutoMinorVersionUpgrade: true
-      BackupRetentionPeriod: {{ db.backupRetentionPeriod }}
+      BackupRetentionPeriod: {{ postgres.backupRetentionPeriod }}
       CopyTagsToSnapshot: true
-      DBInstanceClass: {{ db.type }}
-      DBSnapshotIdentifier: {{ db.name }}
+      DBInstanceClass: {{ postgres.type }}
+      DBSnapshotIdentifier: {{ postgres.name }}
       DBSubnetGroupName: !Ref DBSubnetGroup
       Engine: postgres
-      EngineVersion: {{ db.version }}
+      EngineVersion: {{ postgres.version }}
       MasterUsername: 'master'
       MasterUserPassword: !Ref DBMasterUserPassword
-      MultiAZ: {{ db.multiAZ }}
+      MultiAZ: {{ postgres.multiAZ }}
       PreferredMaintenanceWindow: "sat:14:30-sat:15:30"
       StorageType: gp2
       VPCSecurityGroups:
