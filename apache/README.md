@@ -1,0 +1,5 @@
+- find / -name httpd.conf
+- Apache config path
+  - /etc/httpd/conf/httpd.conf
+- Local hosts
+  - path /etc/hosts
